@@ -10,11 +10,11 @@ import java.util.ArrayList;
 public class AtiendeServidor extends Thread {
 
 	private Socket socket;
-	private AtiendeServidor hilosClientes[];
-	// private ArrayList<AtiendeServidor> listaHilos;
+	// private AtiendeServidor hilosClientes[];
+	private ArrayList<AtiendeServidor> hilosClientes;
 	private PrintWriter output;
 
-	public AtiendeServidor(Socket socket, AtiendeServidor hilosClientes[]) {
+	public AtiendeServidor(Socket socket, ArrayList<AtiendeServidor> hilosClientes) {
 		this.socket = socket;
 		this.hilosClientes = hilosClientes;
 	}

@@ -14,19 +14,13 @@ public class AppServidor {
 		ServerSocket miServerSocket = new ServerSocket(puerto);
 		System.out.println("Servidor conectado (Puerto " + puerto);
 
-		// ArrayList<AtiendeServidor> misClientes = new ArrayList<AtiendeServidor>();
-		AtiendeServidor listaDeClientes[] = new AtiendeServidor[5];
+		ArrayList<AtiendeServidor> misClientes = new ArrayList<AtiendeServidor>();
 		while (true) {
 			Socket miSocket = miServerSocket.accept();
-			
-			for (AtiendeServidor aT : listaDeClientes) {
-				AtiendeServidor respuestasServidor = new AtiendeServidor(miSocket, listaDeClientes);
+			AtiendeServidor respuestasServidor = new AtiendeServidor(miSocket, misClientes);
 
-				// misClientes.add(respuestasServidor);
-				respuestasServidor.start();
-			}
-			
-			
+			misClientes.add(respuestasServidor);
+			respuestasServidor.start();
 		}
 	}
 }
