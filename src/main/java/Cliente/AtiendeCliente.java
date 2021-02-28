@@ -1,9 +1,8 @@
 package Cliente;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 import Comun.ComunHilos;
@@ -13,7 +12,7 @@ public class AtiendeCliente extends Thread {
 	// VARIABLES
 	private ComunHilos comunHilos;
 	private Socket socket;
-	private PrintWriter output;
+	private DataOutputStream salida;
 
 	// CONSTRUCTOR
 	public AtiendeCliente(Socket socket, ComunHilos comunHilos) {
@@ -25,17 +24,14 @@ public class AtiendeCliente extends Thread {
 	@Override
 	public void run() {
 		try {
-			BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			output = new PrintWriter(socket.getOutputStream(), true);
-			String nombre = input.readLine();
+			DataInputStream entrada = new DataInputStream(socket.getInputStream());
+			salida = new DataOutputStream(socket.getOutputStream());
+			String nombre = entrada.readUTF();
 			while (true) {
-				String outputString = input.readLine();
-				if (outputString.equals("*")) {
-					break;
-				}
-				comunHilos.anadirMensaje(outputString, nombre);
+				String outputString = entrada.readUTF();
+				comunHilos.anadirMensaje(outputString);
 				comunHilos.anadirCliente(socket);
-				System.out.println("(Recibido en servidor) " + outputString);
+				System.out.println("Mensaje de " + outputString);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
