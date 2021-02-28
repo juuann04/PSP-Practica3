@@ -3,35 +3,42 @@ package Cliente;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
+
+import Comun.ComunHilos;
 
 public class AtiendeCliente extends Thread {
 
-	static final String IP = "localhost";
-	static final int PUERTO = 4444;
+	// VARIABLES
+	private ComunHilos comunHilos;
 	private Socket socket;
-	private BufferedReader input;
+	private PrintWriter output;
 
-	public AtiendeCliente(Socket socket) throws IOException {
+	// CONSTRUCTOR
+	public AtiendeCliente(Socket socket, ComunHilos comunHilos) {
 		this.socket = socket;
-		this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		this.comunHilos = comunHilos;
 	}
 
+	// OTRO METODOS
 	@Override
 	public void run() {
 		try {
+			BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			output = new PrintWriter(socket.getOutputStream(), true);
+			String nombre = input.readLine();
 			while (true) {
-				String respuesta = input.readLine();
-				System.out.println(respuesta);
+				String outputString = input.readLine();
+				if (outputString.equals("*")) {
+					break;
+				}
+				comunHilos.anadirMensaje(outputString, nombre);
+				comunHilos.anadirCliente(socket);
+				System.out.println("(Recibido en servidor) " + outputString);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				input.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 }

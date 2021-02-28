@@ -1,40 +1,49 @@
 package Comun;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ComunHilos {
-
-	private final int MAX_CONEXIONES;
+	
+	// VARIABLES
+	private static int conexionesMax = 10;
 	private int conexionesTotales;
 	private int conexcionesActuales;
-	private Socket[] tablaDeConexiones;
+	private Socket[] tablaDeConexiones = new Socket[10];
 	private String mensajes;
 
-	public ComunHilos(int MAX_CONEXIONES) {
-		this.MAX_CONEXIONES = MAX_CONEXIONES;
+	// CONSTRUCTOR
+	public ComunHilos(int conexionesMax) {
+		this.conexionesMax = conexionesMax;
+		this.conexionesTotales = 0;
+		this.conexcionesActuales = 0;
+		this.mensajes = "";
 	}
 
-	public int getConexionesTotales() {
-		return conexionesTotales;
+	// SETTERS Y GETTERS
+	
+
+	// OTROS METODOS
+	public synchronized void anadirMensaje(String mensaje, String nombreUsuario) throws IOException {
+		String mensajeConUsuario = nombreUsuario + ": " + mensaje;
+		mensajes += mensajeConUsuario;
+
+		for (int i = 0; i < conexcionesActuales; i++) {
+			if (tablaDeConexiones == null) {
+				PrintWriter output = new PrintWriter(tablaDeConexiones[i].getOutputStream(), true);
+				output.println(mensajeConUsuario);
+			}
+		}
 	}
 
-	public void setConexionesTotales(int conexionesTotales) {
-		this.conexionesTotales = conexionesTotales;
-	}
-
-	public int getConexcionesActuales() {
-		return conexcionesActuales;
-	}
-
-	public void setConexcionesActuales(int conexcionesActuales) {
-		this.conexcionesActuales = conexcionesActuales;
-	}
-
-	public String getMensajes() {
-		return mensajes;
-	}
-
-	public void setMensajes(String mensajes) {
-		this.mensajes = mensajes;
+	public synchronized void anadirCliente(Socket conexion) throws IOException {
+		if (tablaDeConexiones == null) {
+			tablaDeConexiones[conexionesTotales] = conexion;
+		}
+		conexionesTotales++;
+		conexcionesActuales++;
+		PrintWriter output = new PrintWriter(conexion.getOutputStream(), true);
+		output.println(mensajes);
 	}
 }

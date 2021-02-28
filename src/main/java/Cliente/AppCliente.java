@@ -8,43 +8,35 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import Servidor.AtiendeServidor;
 import utilidades.Leer;
 
 public class AppCliente {
-
+	
+	// VARIABLES
 	static final String ip = "localhost";
-	static final int puerto = 4444;
+	static final int puerto = 5555;
 
 	public static void main(String[] args) throws IOException {
-
-		// Obtenemos conexion e inicializamos
-		Socket socket = new Socket(ip, puerto);
-
-		BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
-		String inputUsuario;
+		// VARIABLES
+		Socket miSocket = new Socket(ip, puerto);
+		BufferedReader input = new BufferedReader(new InputStreamReader(miSocket.getInputStream()));
+		PrintWriter output = new PrintWriter(miSocket.getOutputStream(), true);
+		String mensajeQueEscribeElCliente = "";
 		String nombreUsuario = "";
-		AtiendeCliente hiloCliente = new AtiendeCliente(socket);
+		AtiendeServidor hiloCliente = new AtiendeServidor(miSocket);
+		
 		hiloCliente.start();
-
-		do {
+		while (!mensajeQueEscribeElCliente.equals("*")) {
 			if (nombreUsuario.equals("")) {
-				System.out.println("Introduce tu nombre");
-				inputUsuario = Leer.pedirCadena();
-				nombreUsuario = inputUsuario;
-				output.println("[Nuevo cliente se ha unido " + nombreUsuario + "]");
-				if (inputUsuario.equals("*")) {
-					break;
-				}
+				System.out.println("Nombre de usuario");
+				nombreUsuario = Leer.pedirCadena();
+				output.println(nombreUsuario);
 			} else {
-				inputUsuario = Leer.pedirCadena();
-				output.println(nombreUsuario + " dice: " + inputUsuario);
-				if (inputUsuario.equals("*")) {
-					break;
-				}
+				mensajeQueEscribeElCliente = Leer.pedirCadena();
+				output.println(nombreUsuario + " dice: " + mensajeQueEscribeElCliente);
 			}
-		} while (!inputUsuario.equals("*"));
-		socket.close();
-		System.out.println("Cliente cerrado");
+		}
+		System.exit(0);
 	}
 }

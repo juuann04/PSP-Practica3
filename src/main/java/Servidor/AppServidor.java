@@ -3,24 +3,28 @@ package Servidor;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
+
+import Cliente.AtiendeCliente;
+import Comun.ComunHilos;
 
 public class AppServidor {
-
-	static final int puerto = 4444;
+	
+	// VARIABLES
+	static final int puerto = 5555;
+	private static final int conexionesMax = 10;
 
 	public static void main(String[] args) throws IOException {
+		ServerSocket serverSocket = new ServerSocket(puerto);
+		System.out.println("Escuchando en el puerto " + puerto);
 
-		ServerSocket miServerSocket = new ServerSocket(puerto);
-		System.out.println("Servidor conectado (Puerto " + puerto);
-
-		ArrayList<AtiendeServidor> misClientes = new ArrayList<AtiendeServidor>();
+		ComunHilos comunhilos = new ComunHilos(conexionesMax);
 		while (true) {
-			Socket miSocket = miServerSocket.accept();
-			AtiendeServidor respuestasServidor = new AtiendeServidor(miSocket, misClientes);
+			Socket socket = serverSocket.accept();
+			AtiendeCliente hilosServidor = new AtiendeCliente(socket, comunhilos);
 
-			misClientes.add(respuestasServidor);
-			respuestasServidor.start();
+			comunhilos.anadirCliente(socket);
+			hilosServidor.start();
+			System.out.println("Hay un nuevo cliente");
 		}
 	}
 }
